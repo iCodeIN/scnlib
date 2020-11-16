@@ -22,6 +22,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <cwchar>
 
 #if SCN_HAS_STRING_VIEW
 #include <string_view>
