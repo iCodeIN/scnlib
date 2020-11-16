@@ -24,8 +24,9 @@
 #include <iterator>
 #include <ranges>
 
-#include "../string_view.h"
 #include "util.h"
+
+#include "../string_view.h"
 
 namespace scn {
     SCN_BEGIN_NAMESPACE
