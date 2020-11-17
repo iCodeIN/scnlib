@@ -92,11 +92,11 @@ namespace scn {
             range_wrapper_storage() = default;
             range_wrapper_storage(const type& v) : value(std::addressof(v)) {}
 
-            const type& get() const&
+            const type& get() const& noexcept
             {
                 return *value;
             }
-            type&& get() &&
+            type&& get() && noexcept
             {
                 return SCN_MOVE(*value);
             }
@@ -113,11 +113,11 @@ namespace scn {
             {
             }
 
-            const T& get() const&
+            const T& get() const& noexcept
             {
                 return value;
             }
-            T&& get() &&
+            T&& get() && noexcept
             {
                 return SCN_MOVE(value);
             }
@@ -152,8 +152,7 @@ namespace scn {
                 typename = typename std::enable_if<
                     !_has_range_wrapper_marker<remove_cvref_t<R>>::value>::type>
             range_wrapper(R&& r)
-                : m_range(SCN_FWD(r)),
-                  m_begin(ranges::cbegin(m_range.get()))
+                : m_range(SCN_FWD(r)), m_begin(ranges::cbegin(m_range.get()))
             {
             }
 
@@ -204,8 +203,8 @@ namespace scn {
             {
                 return m_begin;
             }
-            sentinel end() const noexcept(noexcept(
-                ranges::cend(std::declval<const range_nocvref_type&>())))
+            sentinel end() const noexcept(
+                noexcept(ranges::cend(SCN_DECLVAL(const storage_type&).get())))
             {
                 return ranges::cend(m_range.get());
             }
@@ -242,7 +241,7 @@ namespace scn {
             }
 
             iterator begin_underlying() const noexcept(noexcept(
-                ranges::cbegin(std::declval<const range_nocvref_type&>())))
+                ranges::cbegin(SCN_DECLVAL(const range_nocvref_type&))))
             {
                 return ranges::cbegin(m_range.get());
             }
@@ -256,9 +255,9 @@ namespace scn {
                       typename std::enable_if<SCN_CHECK_CONCEPT(
                           ranges::contiguous_range<R>)>::type* = nullptr>
             auto data() const
-                noexcept(noexcept(*std::declval<ranges::iterator_t<const R>>()))
+                noexcept(noexcept(*SCN_DECLVAL(ranges::iterator_t<const R>)))
                     -> decltype(std::addressof(
-                        *std::declval<ranges::iterator_t<const R>>()))
+                        *SCN_DECLVAL(ranges::iterator_t<const R>)))
             {
                 return std::addressof(*m_begin);
             }
@@ -266,11 +265,11 @@ namespace scn {
                       typename std::enable_if<SCN_CHECK_CONCEPT(
                           ranges::sized_range<R>)>::type* = nullptr>
             auto size() const noexcept(noexcept(
-                ranges::distance(std::declval<ranges::iterator_t<const R>>(),
-                                 std::declval<ranges::sentinel_t<const R>>())))
-                -> decltype(ranges::distance(
-                    std::declval<ranges::iterator_t<const R>>(),
-                    std::declval<ranges::sentinel_t<const R>>()))
+                ranges::distance(SCN_DECLVAL(ranges::iterator_t<const R>),
+                                 SCN_DECLVAL(ranges::sentinel_t<const R>))))
+                -> decltype(
+                    ranges::distance(SCN_DECLVAL(ranges::iterator_t<const R>),
+                                     SCN_DECLVAL(ranges::sentinel_t<const R>)))
             {
                 return ranges::distance(m_begin, end());
             }
@@ -430,10 +429,8 @@ namespace scn {
             public:
                 template <typename Range>
                 auto operator()(Range&& r) const
-                    noexcept(noexcept(fn::impl(SCN_FWD(r),
-                                               priority_tag<4>{})))
-                        -> decltype(fn::impl(SCN_FWD(r),
-                                             priority_tag<4>{}))
+                    noexcept(noexcept(fn::impl(SCN_FWD(r), priority_tag<4>{})))
+                        -> decltype(fn::impl(SCN_FWD(r), priority_tag<4>{}))
                 {
                     return fn::impl(SCN_FWD(r), priority_tag<4>{});
                 }
@@ -445,7 +442,7 @@ namespace scn {
 
         template <typename Range>
         struct range_wrapper_for {
-            using type = decltype(wrap(std::declval<Range>()));
+            using type = decltype(wrap(SCN_DECLVAL(Range)));
         };
         template <typename Range>
         using range_wrapper_for_t = typename range_wrapper_for<Range>::type;
@@ -532,14 +529,14 @@ namespace scn {
             }
             /// End of the leftover range
             sentinel end() const
-                noexcept(noexcept(std::declval<wrapped_range_type>().end()))
+                noexcept(noexcept(SCN_DECLVAL(wrapped_range_type).end()))
             {
                 return m_range.end();
             }
 
             /// Whether the leftover range is empty
             bool empty() const
-                noexcept(noexcept(std::declval<wrapped_range_type>().end()))
+                noexcept(noexcept(SCN_DECLVAL(wrapped_range_type).end()))
             {
                 return begin() == end();
             }
@@ -896,9 +893,9 @@ namespace scn {
         template <typename Error, typename InputRange, typename WrappedRange>
         struct result_type_for {
             using type =
-                decltype(wrap_result(std::declval<Error&&>(),
-                                     std::declval<range_tag<InputRange>>(),
-                                     std::declval<WrappedRange&&>()));
+                decltype(wrap_result(SCN_DECLVAL(Error &&),
+                                     SCN_DECLVAL(range_tag<InputRange>),
+                                     SCN_DECLVAL(WrappedRange&&)));
         };
         template <typename Error, typename InputRange, typename WrappedRange>
         using result_type_for_t =

@@ -393,9 +393,9 @@ namespace scn {
         template <typename CharT, typename T>
         struct get_type {
             using value_type = decltype(make_value<CharT>(
-                std::declval<typename std::remove_reference<
-                    typename std::remove_cv<T>::type>::type&>(),
-                std::declval<priority_tag<1>>()));
+                SCN_DECLVAL(typename std::remove_reference<
+                            typename std::remove_cv<T>::type>::type&),
+                SCN_DECLVAL(priority_tag<1>)));
             static const type value = value_type::type_tag;
         };
 

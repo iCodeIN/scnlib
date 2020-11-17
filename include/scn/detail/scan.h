@@ -31,9 +31,9 @@ namespace scn {
     namespace detail {
         template <typename Error, typename Range>
         using generic_scan_result_for_range = decltype(
-            detail::wrap_result(std::declval<Error>(),
-                                std::declval<detail::range_tag<Range>>(),
-                                std::declval<range_wrapper_for_t<Range>>()));
+            detail::wrap_result(SCN_DECLVAL(Error),
+                                SCN_DECLVAL(detail::range_tag<Range>),
+                                SCN_DECLVAL(range_wrapper_for_t<Range>)));
         template <typename Range>
         using scan_result_for_range =
             generic_scan_result_for_range<wrapped_error, Range>;
@@ -657,7 +657,7 @@ namespace scn {
     namespace detail {
         template <typename T>
         using span_list_wrapper_for = span_list_wrapper<typename decltype(
-            make_span(std::declval<T&>()))::value_type>;
+            make_span(SCN_DECLVAL(T&)))::value_type>;
     }
 
     /**
