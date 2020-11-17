@@ -63,7 +63,7 @@ namespace scn {
                 ctx, pctx, basic_args<typename context_type::char_type>{args});
             return detail::wrap_result(wrapped_error{err},
                                        detail::range_tag<Range>{},
-                                       std::move(ctx.range()));
+                                       SCN_MOVE(ctx.range()));
         }
 
         template <template <typename> class ParseCtx,
@@ -98,7 +98,7 @@ namespace scn {
                 ctx, pctx, basic_args<typename context_type::char_type>{args});
             return detail::wrap_result(wrapped_error{err},
                                        detail::range_tag<Range>{},
-                                       std::move(ctx.range()));
+                                       SCN_MOVE(ctx.range()));
         }
     }  // namespace detail
 
@@ -215,11 +215,11 @@ namespace scn {
         if (!err) {
             return detail::wrap_result(expected<T>{err},
                                        detail::range_tag<Range>{},
-                                       std::move(ctx.range()));
+                                       SCN_MOVE(ctx.range()));
         }
         return detail::wrap_result(expected<T>{value},
                                    detail::range_tag<Range>{},
-                                   std::move(ctx.range()));
+                                   SCN_MOVE(ctx.range()));
     }
 
     // input
@@ -367,7 +367,7 @@ namespace scn {
                 tmp.pop_back();
             }
             r.advance();
-            str = std::move(tmp);
+            str = SCN_MOVE(tmp);
             return {};
         }
         template <typename WrappedRange, typename CharT>
@@ -451,7 +451,7 @@ namespace scn {
             wrapped.set_rollback_point();
         }
         return detail::wrap_result(
-            wrapped_error{err}, detail::range_tag<Range>{}, std::move(wrapped));
+            wrapped_error{err}, detail::range_tag<Range>{}, SCN_MOVE(wrapped));
     }
 
     /**
@@ -584,7 +584,7 @@ namespace scn {
             wrapped.set_rollback_point();
         }
         return detail::wrap_result(
-            wrapped_error{err}, detail::range_tag<Range>{}, std::move(wrapped));
+            wrapped_error{err}, detail::range_tag<Range>{}, SCN_MOVE(wrapped));
     }
 
     /**
@@ -606,7 +606,7 @@ namespace scn {
             }
         }
         return detail::wrap_result(
-            wrapped_error{err}, detail::range_tag<Range>{}, std::move(wrapped));
+            wrapped_error{err}, detail::range_tag<Range>{}, SCN_MOVE(wrapped));
     }
 
     /**
@@ -637,7 +637,7 @@ namespace scn {
         void push_back(T val)
         {
             SCN_EXPECT(n < max_size());
-            m_span[n] = std::move(val);
+            m_span[n] = SCN_MOVE(val);
             ++n;
         }
 
@@ -758,9 +758,9 @@ namespace scn {
                 }
                 return detail::wrap_result(wrapped_error{err},
                                            detail::range_tag<Range>{},
-                                           std::move(ctx.range()));
+                                           SCN_MOVE(ctx.range()));
             }
-            c.push_back(std::move(value));
+            c.push_back(SCN_MOVE(value));
 
             if (separator != 0) {
                 auto sep_ret = read_char(ctx.range());
@@ -770,7 +770,7 @@ namespace scn {
                     }
                     return detail::wrap_result(wrapped_error{sep_ret.error()},
                                                detail::range_tag<Range>{},
-                                               std::move(ctx.range()));
+                                               SCN_MOVE(ctx.range()));
                 }
                 if (sep_ret.value() == separator) {
                     continue;
@@ -782,7 +782,7 @@ namespace scn {
             }
         }
         return detail::wrap_result(wrapped_error{}, detail::range_tag<Range>{},
-                                   std::move(ctx.range()));
+                                   SCN_MOVE(ctx.range()));
     }
 
     /**
@@ -832,9 +832,9 @@ namespace scn {
                 }
                 return detail::wrap_result(wrapped_error{err},
                                            detail::range_tag<Range>{},
-                                           std::move(ctx.range()));
+                                           SCN_MOVE(ctx.range()));
             }
-            c.push_back(std::move(value));
+            c.push_back(SCN_MOVE(value));
 
             bool sep_found = false;
             while (true) {
@@ -846,7 +846,7 @@ namespace scn {
                     }
                     return detail::wrap_result(wrapped_error{next.error()},
                                                detail::range_tag<Range>{},
-                                               std::move(ctx.range()));
+                                               SCN_MOVE(ctx.range()));
                 }
 
                 if (next.value() == until) {
@@ -874,7 +874,7 @@ namespace scn {
             }
         }
         return detail::wrap_result(wrapped_error{}, detail::range_tag<Range>{},
-                                   std::move(ctx.range()));
+                                   SCN_MOVE(ctx.range()));
     }
 
     template <typename T>

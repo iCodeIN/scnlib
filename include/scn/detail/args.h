@@ -34,7 +34,7 @@ namespace scn {
      */
     template <typename T>
     struct temporary {
-        temporary(T&& val) : value(std::move(val)) {}
+        temporary(T&& val) : value(SCN_MOVE(val)) {}
 
         T& operator()() && noexcept
         {
@@ -58,7 +58,7 @@ namespace scn {
                   !std::is_lvalue_reference<T>::value>::type* = nullptr>
     temporary<T> temp(T&& val)
     {
-        return {std::forward<T>(val)};
+        return {SCN_FWD(val)};
     }
 
     namespace detail {

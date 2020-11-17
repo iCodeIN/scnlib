@@ -98,7 +98,7 @@ namespace scn {
             }
             type&& get() &&
             {
-                return std::move(*value);
+                return SCN_MOVE(*value);
             }
         };
         template <typename T>
@@ -109,7 +109,7 @@ namespace scn {
 
             range_wrapper_storage() = default;
             template <typename U>
-            range_wrapper_storage(U&& v) : value(std::forward<U>(v))
+            range_wrapper_storage(U&& v) : value(SCN_FWD(v))
             {
             }
 
@@ -119,7 +119,7 @@ namespace scn {
             }
             T&& get() &&
             {
-                return std::move(value);
+                return SCN_MOVE(value);
             }
         };
 
@@ -152,7 +152,7 @@ namespace scn {
                 typename = typename std::enable_if<
                     !_has_range_wrapper_marker<remove_cvref_t<R>>::value>::type>
             range_wrapper(R&& r)
-                : m_range(std::forward<R>(r)),
+                : m_range(SCN_FWD(r)),
                   m_begin(ranges::cbegin(m_range.get()))
             {
             }
@@ -180,7 +180,7 @@ namespace scn {
             {
                 const auto n =
                     ranges::distance(o.begin_underlying(), o.m_begin);
-                m_range = std::move(o.m_range);
+                m_range = SCN_MOVE(o.m_range);
                 m_begin = ranges::cbegin(m_range.get());
                 ranges::advance(m_begin, n);
                 m_read = exchange(o.m_read, 0);
@@ -191,7 +191,7 @@ namespace scn {
 
                 const auto n =
                     ranges::distance(o.begin_underlying(), o.m_begin);
-                m_range = std::move(o.m_range);
+                m_range = SCN_MOVE(o.m_range);
                 m_begin = ranges::cbegin(m_range.get());
                 ranges::advance(m_begin, n);
                 m_read = exchange(o.m_read, 0);
@@ -319,7 +319,7 @@ namespace scn {
             auto rewrap() && -> range_wrapper<R>
             {
                 const auto n = ranges::distance(begin_underlying(), begin());
-                auto r = range_wrapper<R>{std::move(m_range.get())};
+                auto r = range_wrapper<R>{SCN_MOVE(m_range.get())};
                 r.advance(n);
                 r.set_rollback_point();
                 return r;
@@ -430,12 +430,12 @@ namespace scn {
             public:
                 template <typename Range>
                 auto operator()(Range&& r) const
-                    noexcept(noexcept(fn::impl(std::forward<Range>(r),
+                    noexcept(noexcept(fn::impl(SCN_FWD(r),
                                                priority_tag<4>{})))
-                        -> decltype(fn::impl(std::forward<Range>(r),
+                        -> decltype(fn::impl(SCN_FWD(r),
                                              priority_tag<4>{}))
                 {
-                    return fn::impl(std::forward<Range>(r), priority_tag<4>{});
+                    return fn::impl(SCN_FWD(r), priority_tag<4>{});
                 }
             };
         }  // namespace _wrap
@@ -479,7 +479,7 @@ namespace scn {
         template <typename Base>
         class scan_result_base_wrapper : public Base {
         public:
-            scan_result_base_wrapper(Base&& b) : Base(std::move(b)) {}
+            scan_result_base_wrapper(Base&& b) : Base(SCN_MOVE(b)) {}
 
         protected:
             void set_base(const Base& b)
@@ -488,7 +488,7 @@ namespace scn {
             }
             void set_base(Base&& b)
             {
-                static_cast<Base&>(*this) = std::move(b);
+                static_cast<Base&>(*this) = SCN_MOVE(b);
             }
         };
 
@@ -521,7 +521,7 @@ namespace scn {
             using char_type = typename wrapped_range_type::char_type;
 
             scan_result_base(Base&& b, wrapped_range_type&& r)
-                : base_type(std::move(b)), m_range(std::move(r))
+                : base_type(SCN_MOVE(b)), m_range(SCN_MOVE(r))
             {
             }
 
@@ -567,7 +567,7 @@ namespace scn {
             /// \copydoc range()
             wrapped_range_type range() &&
             {
-                return std::move(m_range);
+                return SCN_MOVE(m_range);
             }
 
             /**
@@ -629,7 +629,7 @@ namespace scn {
             using base_type = scan_result_base<WrappedRange, Base>;
 
             intermediary_scan_result(Base&& b, WrappedRange&& r)
-                : base_type(std::move(b), std::move(r))
+                : base_type(SCN_MOVE(b), SCN_MOVE(r))
             {
             }
 
@@ -653,7 +653,7 @@ namespace scn {
             using base_type = intermediary_scan_result<WrappedRange, Base>;
 
             reconstructed_scan_result(Base&& b, WrappedRange&& r)
-                : base_type(std::move(b), std::move(r))
+                : base_type(SCN_MOVE(b), SCN_MOVE(r))
             {
             }
 
@@ -685,7 +685,7 @@ namespace scn {
             using base_type = intermediary_scan_result<WrappedRange, Base>;
 
             non_reconstructed_scan_result(Base&& b, WrappedRange&& r)
-                : base_type(std::move(b), std::move(r))
+                : base_type(SCN_MOVE(b), SCN_MOVE(r))
             {
             }
 
@@ -732,7 +732,7 @@ namespace scn {
                                  priority_tag<4>) noexcept
                     -> intermediary_scan_result<range_wrapper<Range&>, Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
                 // Range = const range_wrapper<ref>&
                 template <typename Error, typename Range>
@@ -742,7 +742,7 @@ namespace scn {
                                  priority_tag<4>) noexcept
                     -> intermediary_scan_result<range_wrapper<Range&>, Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
                 // Range = range_wrapper<ref>&&
                 template <typename Error, typename Range>
@@ -752,7 +752,7 @@ namespace scn {
                                  priority_tag<4>) noexcept
                     -> intermediary_scan_result<range_wrapper<Range&>, Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
 
                 // Range = range_wrapper<non-ref>&
@@ -766,7 +766,7 @@ namespace scn {
                                  priority_tag<3>) noexcept
                     -> intermediary_scan_result<range_wrapper<Range>, Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
                 // Range = const range_wrapper<non-ref>&
                 template <typename Error,
@@ -779,7 +779,7 @@ namespace scn {
                                  priority_tag<3>) noexcept
                     -> intermediary_scan_result<range_wrapper<Range>, Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
                 // Range = range_wrapper<non-ref>&&
                 template <typename Error,
@@ -792,7 +792,7 @@ namespace scn {
                                  priority_tag<3>) noexcept
                     -> intermediary_scan_result<range_wrapper<Range>, Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
 
                 // string literals are wonky
@@ -809,7 +809,7 @@ namespace scn {
                         range_wrapper<basic_string_view<NoCvref>>,
                         Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
 
                 // (const) InputRange&
@@ -826,7 +826,7 @@ namespace scn {
                         typename std::remove_const<InputRange>::type,
                         Error>
                 {
-                    return {std::move(e), std::move(range)};
+                    return {SCN_MOVE(e), SCN_MOVE(range)};
                 }
 
                 // InputRange&&
@@ -844,8 +844,8 @@ namespace scn {
                     -> reconstructed_scan_result<range_wrapper<InputRange>,
                                                  Error>
                 {
-                    return {std::move(e),
-                            std::move(range).template rewrap<InputRange>()};
+                    return {SCN_MOVE(e),
+                            SCN_MOVE(range).template rewrap<InputRange>()};
                 }
 
                 // InputRange&&
@@ -861,8 +861,8 @@ namespace scn {
                                  priority_tag<0>) noexcept
                     -> reconstructed_scan_result<range_wrapper<NoRef>, Error>
                 {
-                    return {std::move(e),
-                            std::move(range).template rewrap<NoRef>()};
+                    return {SCN_MOVE(e),
+                            SCN_MOVE(range).template rewrap<NoRef>()};
                 }
 
             public:
@@ -872,18 +872,18 @@ namespace scn {
                 auto operator()(Error e,
                                 range_tag<InputRange> tag,
                                 range_wrapper<InnerWrappedRange>&& range) const
-                    noexcept(noexcept(impl(std::move(e),
+                    noexcept(noexcept(impl(SCN_MOVE(e),
                                            tag,
-                                           std::move(range),
+                                           SCN_MOVE(range),
                                            priority_tag<4>{})))
-                        -> decltype(impl(std::move(e),
+                        -> decltype(impl(SCN_MOVE(e),
                                          tag,
-                                         std::move(range),
+                                         SCN_MOVE(range),
                                          priority_tag<4>{}))
                 {
                     static_assert(SCN_CHECK_CONCEPT(ranges::range<InputRange>),
                                   "Input needs to be a Range");
-                    return impl(std::move(e), tag, std::move(range),
+                    return impl(SCN_MOVE(e), tag, SCN_MOVE(range),
                                 priority_tag<4>{});
                 }
             };
