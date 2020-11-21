@@ -377,6 +377,8 @@ namespace scn {
                     return sv.end();
                 }
 
+                SCN_GCC_PUSH
+                SCN_GCC_IGNORE("-Wnoexcept")
                 template <typename T,
                           typename S =
                               decltype(::scn::custom_ranges::detail::decay_copy(
@@ -406,6 +408,7 @@ namespace scn {
                     return ::scn::custom_ranges::detail::decay_copy(
                         end(SCN_FWD(t)));
                 }
+                SCN_GCC_POP
 
             public:
                 template <typename T>

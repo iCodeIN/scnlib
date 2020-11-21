@@ -203,11 +203,14 @@ namespace scn {
             {
                 return m_begin;
             }
+            SCN_GCC_PUSH
+            SCN_GCC_IGNORE("-Wnoexcept")
             sentinel end() const noexcept(
                 noexcept(ranges::cend(SCN_DECLVAL(const storage_type&).get())))
             {
                 return ranges::cend(m_range.get());
             }
+            SCN_GCC_POP
 
             bool empty() const
             {
@@ -527,6 +530,8 @@ namespace scn {
             {
                 return m_range.begin();
             }
+            SCN_GCC_PUSH
+            SCN_GCC_IGNORE("-Wnoexcept")
             /// End of the leftover range
             sentinel end() const
                 noexcept(noexcept(SCN_DECLVAL(wrapped_range_type).end()))
@@ -540,6 +545,7 @@ namespace scn {
             {
                 return begin() == end();
             }
+            SCN_GCC_POP
 
             /// A subrange pointing to the leftover range
             ranges::subrange<iterator, sentinel> subrange() const
